@@ -8,7 +8,7 @@ from plots import plot_disparity_by_race
 df = pd.read_csv('./data/tx_statewide_2020_04_01-002_clean.csv', nrows=1000)
 
 # Initialize the Dash app
-app = dash.Dash(__name__)
+app = dash.Dash(__name__, external_stylesheets=['https://codepen.io/chriddyp/pen/bWLwgP.css'])
 
 # Define color scale for different races
 color_scale = px.colors.qualitative.Set1[:len(df['subject_race'].unique())]
