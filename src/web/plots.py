@@ -1,5 +1,6 @@
 import plotly.express as px
 import pandas as pd
+import plotly.graph_objects as go
 
 def plot_disparity_by_race(df):
     # Count the occurrences of each race
@@ -151,3 +152,27 @@ def gender_distribution(df):
     )
 
     return fig
+
+def update_number_of_tickets(df):
+    # Convertir les colonnes de dates en type datetime
+    df['timestamp'] = pd.to_datetime(df['timestamp'])
+
+    # Total number of tickets by years
+    ticket_count_years = df['timestamp'].dt.year.value_counts().sort_index()
+
+    # Total number of tickets by months
+    ticket_count_month = df['timestamp'].dt.month.value_counts().sort_index()
+
+    # Total number of tickets by days of month
+    ticket_count_day = df['timestamp'].dt.day.value_counts().sort_index()
+
+    figures = {
+        'years': px.line(ticket_count_years, x=ticket_count_years.index, y=ticket_count_years.values,
+                         labels={'x': 'Year', 'y': 'Number of Tickets'}, title='Number of Tickets by Year'),
+        'months': px.line(ticket_count_month, x=ticket_count_month.index, y=ticket_count_month.values,
+                          labels={'x': 'Month', 'y': 'Number of Tickets'}, title='Number of Tickets by Month'),
+        'days': px.line(ticket_count_day, x=ticket_count_day.index, y=ticket_count_day.values,
+                        labels={'x': 'Day', 'y': 'Number of Tickets'}, title='Number of Tickets by Day')
+    }
+
+    return figures

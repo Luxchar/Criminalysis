@@ -1,28 +1,24 @@
 import dash
-from dash import dcc, html, Input, Output, State
+from dash import dcc, html, Input, Output
 import plotly.express as px
 import pandas as pd
-from plots import *
 import dash_bootstrap_components as dbc
 from dash_bootstrap_templates import ThemeChangerAIO, template_from_url
+from plots import *  # Si nécessaire, importez vos fonctions de traçage depuis le module plots
 
-# Load only 1000 data points from the CSV
+# Charger uniquement 1000 points de données depuis le CSV
 df = pd.read_csv('./data/tx_statewide_2020_04_01-002_clean.csv', nrows=1000)
 
-# Load the full dataset to get the total number of arrests
-# total_arrests = len(pd.read_csv('./data/tx_statewide_2020_04_01.csv'))
+# URL du fichier CSS de Bootstrap
+dbc_css = "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates@V1.0.1/dbc.min.css"
 
-dbc_css = (
-    "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates@V1.0.1/dbc.min.css"
-)
-
-# Create the Dash app
+# Créer l'application Dash
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP, dbc_css])
 
-# Define color scale for different races
+# Échelle de couleur pour différentes races
 color_scale = px.colors.qualitative.Set1[:len(df['subject_race'].unique())]
 
-# Define race names
+# Noms de race
 race_names = {
     0: 'White',
     1: 'Black',
@@ -30,25 +26,23 @@ race_names = {
     3: 'Asian',
 }
 
-# Define gender names
+# Noms de genre
 gender_names = {
     0: 'Women',
     1: 'Men'
 }
 
-# Function to load data with specified nrows
+# Fonction pour charger les données avec un nombre spécifié de lignes
 def load_data(nrows):
     df = pd.read_csv('./data/tx_statewide_2020_04_01-002_clean.csv', nrows=nrows)
     df['subject_race'] = df['subject_race'].map(race_names)
     return df
 
-# Updated function to plot disparity by race
+# Fonction mise à jour pour tracer la disparité par race
 def plot_disparity_by_race(df):
-    # Count the occurrences of each race
     race_counts = df['subject_race'].value_counts().reset_index()
     race_counts.columns = ['subject_race', 'count']
     
-    # Define the color mapping using the same color scale as the map
     color_mapping = {race: color for race, color in zip(race_counts['subject_race'], color_scale)}
 
     fig = px.bar(
@@ -60,7 +54,6 @@ def plot_disparity_by_race(df):
         text='count'
     )
 
-    # Update the layout to remove grid lines, axis lines, and labels
     fig.update_layout(
         showlegend=False,
         xaxis_title=None,
@@ -70,7 +63,6 @@ def plot_disparity_by_race(df):
         plot_bgcolor='white'
     )
 
-    # Update the traces to show text and to remove any marker lines
     fig.update_traces(
         texttemplate='%{text}',
         textposition='outside',
@@ -79,85 +71,91 @@ def plot_disparity_by_race(df):
 
     return fig
 
-# Define the layout of the app
+# Définir la mise en page de l'application
 app.layout = html.Div([
     html.Header(
-            html.H1("CRIMANALISYS"),
+        html.H1("CRIMANALISYS"),
         style={'textAlign': 'center', 'margin': '0', 'background': 'black', 'color': 'white', 'padding': '10px'}
     ),
 
-    html.P("Today, there are approximately 30 million residents in Texas. There have been 19 Millions recorded arrests since 2013, but this is only a small part. Despite this, there are still disparities in gender and racial discrimination."),
+    html.P("Aujourd'hui, il y a environ 30 millions de résidents au Texas. Il y a eu 19 millions d'arrestations enregistrées depuis 2013, mais ce n'est qu'une petite partie. Malgré cela, il existe toujours des disparités en matière de genre et de discrimination raciale."),
 
     html.Div([
         html.Div([
-        html.Label('Number of rows to load:'),
-        dcc.Slider(
-            id='nrows-slider',
-            min=100,
-            max=5000,
-            step=100,
-            value=1000,
-            marks={i: str(i) for i in range(100, 5001, 500)}
-        ),
-        html.Div(id='slider-output-container', style={'textAlign': 'center', 'margin-top': '20px'}),
+            html.Label('Nombre de lignes à charger :'),
+            dcc.Slider(
+                id='nrows-slider',
+                min=100,
+                max=5000,
+                step=100,
+                value=1000,
+                marks={i: str(i) for i in range(100, 5001, 500)}
+            ),
+            html.Div(id='slider-output-container', style={'textAlign': 'center', 'margin-top': '20px'}),
         ], style={'margin-top': '20px', 'margin-bottom': '20px', 'display': 'flex', 'flexDirection': 'column', 'alignItems': 'center'}),
 
         html.H3(id='total-arrests-text', style={'margin-top': '20px', 'margin-bottom': '20px', 'textAlign': 'center'}),
     ], style={'margin-top': '20px', 'margin-bottom': '20px', 'display': 'flex', 'justify-content': 'center'}),
 
-    # Cards showing the number of data points for each category
+    # Cartes montrant le nombre de points de données pour chaque catégorie
     html.Div([
         html.Div([
             html.Div([
-                html.H4("Loaded Data"),
+                html.H4("Données chargées"),
                 html.H3(id='total-data')
             ], className="card-content"),
         ], className="card"),
         html.Div([
             html.Div([
-                html.H4("Search Conducted"),
+                html.H4("Recherches effectuées"),
                 html.H3(id='search-conducted')
             ], className="card-content"),
         ], className="card"),
         html.Div([
             html.Div([
-                html.H4("Search Vehicle"),
+                html.H4("Véhicules fouillés"),
                 html.H3(id='search-vehicle')
             ], className="card-content"),
         ], className="card"),
     ], className="card-container", style={'margin-top': '20px', 'margin-bottom': '20px', 'display': 'flex', 'justify-content': 'center', 'gap': '20px'}),
 
-    # Map showing the crime data
+    # Carte montrant les données criminelles
     html.Div([
-
-        dcc.Graph(
-                id='crime-map'
-            ),
+        dcc.Graph(id='crime-map'),
     ], style={'margin-top': '20px', 'margin-bottom': '20px'}),
 
-    # Plot showing the disparity in number of tickets by race
-    dcc.Graph(
-        id='disparity-by-race-plot'
+    # Graphique montrant la disparité du nombre de tickets par race
+    dcc.Graph(id='disparity-by-race-plot'),
+
+    dcc.Graph(id='update-gender-comparison'),
+
+    # Menu déroulant pour sélectionner le type de graphique
+    html.Label('Sélectionner le type de graphique :'),
+    dcc.Dropdown(
+        id='plot-type-dropdown',
+        options=[
+            {'label': 'Années', 'value': 'years'},
+            {'label': 'Mois', 'value': 'months'},
+            {'label': 'Jours', 'value': 'days'}
+        ],
+        value='years',
+        style={'width': '50%', 'margin': 'auto'}
     ),
-    dcc.Graph(
-        id='update-gender-comparison'
-    ),
+
+    # Graphique pour les tickets
+    dcc.Graph(id='tickets-plot'),
+
     html.Div([
-        html.H3('Racial Disparities'),
-        html.P('From 2013 to 2020, the number of arrests in Texas has increased. However, there are still disparities'),
-        dcc.Graph(
-            id='update-racial-disparities'
-        ),
+        html.H3('Disparités raciales'),
+        html.P("De 2013 à 2020, le nombre d'arrestations au Texas a augmenté. Cependant, il existe encore des disparités."),
+        dcc.Graph(id='update-racial-disparities'),
     ], style={'margin-top': '20px', 'margin-bottom': '20px'}),
-    dcc.Graph(
-        id='update-speed-violation-distribution'
-    ),
-    # dcc.Graph(id='gender-distribution', figure=gender_distribution(df)),  # Graphique de distribution des genres
-    # dcc.Graph(id='month-distribution', figure=month_distribution(df))
+
+    dcc.Graph(id='update-speed-violation-distribution'),
 ], style={'max-width': '100%', 'margin': '0', 'padding': '0'})
 
-# Callback to update data and graphs based on slider value
-# Callback to update data and graphs based on slider value
+
+# Callback pour mettre à jour les données et les graphiques en fonction de la valeur du curseur
 @app.callback(
     [
         Output('total-arrests-text', 'children'),
@@ -165,18 +163,26 @@ app.layout = html.Div([
         Output('search-conducted', 'children'),
         Output('search-vehicle', 'children'),
         Output('crime-map', 'figure'),
-        Output('disparity-by-race-plot', 'figure'),
-        Output('update-racial-disparities', 'figure'),
-        Output('update-speed-violation-distribution', 'figure'),
-        Output('slider-output-container', 'children')
+       
+    Output('disparity-by-race-plot', 'figure'),
+    Output('update-racial-disparities', 'figure'),
+    Output('update-speed-violation-distribution', 'figure'),
+    Output('slider-output-container', 'children'),
+    Output('tickets-plot', 'figure'),
     ],
-    [Input('nrows-slider', 'value')]
-)
-def update_output(nrows):
+    [
+        Input('nrows-slider', 'value'),
+        Input('plot-type-dropdown', 'value')
+    ])
+
+
+
+def update_output(nrows, plot_type):
     df = load_data(nrows)
-    total_data = len(df)  # Assuming this is the total number of data points
+    total_data = len(df)  # Supposons que ce soit le nombre total de points de données
     search_conducted = df['search_conducted'].sum()
     search_vehicle = df['search_vehicle'].sum()
+    figures = update_number_of_tickets(df)
 
     crime_map_figure = px.scatter_mapbox(
         df,
@@ -204,10 +210,10 @@ def update_output(nrows):
     gender_comparison_figure = update_gender_comparison(df)
     racial_disparities_figure = update_racial_disparities(df, 'White')
     speed_violation_distribution_figure = speed_violation_distribution(df, gender_names)
-    slider_output = f'Loading {nrows} rows'
+    slider_output = f'Chargement de {nrows} lignes'
 
     return (
-        f"The total number of arrests in Texas: {total_data}",
+        f"Le nombre total d'arrestations au Texas: {total_data}",
         total_data,
         search_conducted,
         search_vehicle,
@@ -215,9 +221,10 @@ def update_output(nrows):
         disparity_by_race_figure,
         gender_comparison_figure,
         racial_disparities_figure,
-        slider_output
+        slider_output,
+        figures[plot_type]
     )
 
-# Run the app
+# Exécuter l'application
 if __name__ == '__main__':
     app.run_server(debug=True)
