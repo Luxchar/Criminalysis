@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Danfo&display=swap');
+
+body {
+    font-family: 'Arial, sans-serif';
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    
+}
+
+header {
+    text-align: center;
+    margin: 0;
+    background: black;
+    color: white;
+    padding: 10px;
+}
+
+.intro-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.card {
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    padding: 20px;
+}
+
+.card-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+h3, h4 {
+    margin: 0;
+}
+
+p {
+    margin: 10px 0;
+}
+
+H1 {
+    text-align: center;
+    font-family: 'danfo', sans-serif;
+}
+
+.intro-text {
+    text-align: center;
+    font-size: 30px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}

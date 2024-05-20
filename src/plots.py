@@ -2,97 +2,46 @@ import plotly.express as px
 import pandas as pd
 import plotly.graph_objects as go
 
-def plot_disparity_by_race(df):
-    # Count the occurrences of each race
-    race_counts = df['subject_race'].value_counts().reset_index()
-    race_counts.columns = ['subject_race', 'count']
-    
-    color_scale = px.colors.qualitative.Set
-
-    # Define the color mapping using the same color scale as the map
-    color_mapping = {race: color for race, color in zip(race_counts['subject_race'], color_scale)}
-
-    fig = px.bar(
-        race_counts,
-        x='subject_race',
-        y='count',
-        color='subject_race',
-        color_discrete_map=color_mapping,
-        text='count' 
-    )
-
-    # Update the layout to remove grid lines, axis lines, and labels
-    fig.update_layout(
-        showlegend=False,
-        xaxis_title=None,
-        yaxis_title=None,
-        xaxis=dict(showline=False, showgrid=False, showticklabels=True),
-        yaxis=dict(showline=False, showgrid=False, showticklabels=False),
-        plot_bgcolor='white'
-    )
-
-    # Update the traces to show text and to remove any marker lines
-    fig.update_traces(
-        texttemplate='%{text}',
-        textposition='outside',
-        marker=dict(line=dict(width=0))
-    )
-
-    return fig
-
-
 def update_gender_comparison(df):
     gender_counts = df['subject_sex'].value_counts()
     fig = px.pie(gender_counts, names=gender_counts.index, title='Arrests by Gender')
     return fig
 
 def update_arrest_density_map(df, selected_year):
-    # Filtrer les données en fonction de l'année sélectionnée
     filtered_df = df[df['year'] == selected_year]
 
-    # Créer la carte thermique
     fig = px.density_mapbox(filtered_df, lat='lat', lon='lng', radius=10, zoom=5,
                             mapbox_style="stamen-terrain", title='Arrest Density Map')
     return fig
 
 def update_temporal_trends(df, selected_month):
-    # Filtrer les données en fonction du mois sélectionné
     filtered_df = df[df['month'] == selected_month]
 
-    # Créer le graphique des tendances temporelles
     temporal_trends = filtered_df.groupby('year')['arrest_count'].sum()
     fig = px.line(temporal_trends, x=temporal_trends.index, y=temporal_trends.values,
                   title='Temporal Trends in Arrests', labels={'x': 'Year', 'y': 'Arrest Count'})
     return fig
 
 def update_racial_disparities(df, selected_race):
-    # Filtrer les données en fonction de la race sélectionnée
     filtered_df = df[df['subject_race'] == selected_race]
 
-    # Créer le graphique des disparités raciales
     race_counts = filtered_df['subject_sex'].value_counts()
     fig = px.pie(race_counts, names=race_counts.index,
                  title=f'Arrests by Gender for {selected_race} Race')
     return fig
 
 def speed_violation_distribution(df, gender_names):
-    # Filter speeding tickets
     speeding_tickets = df[df['violation_parsed'] == 0]
 
-    # Calculate ticket counts by gender
     ticket_counts = speeding_tickets['subject_sex'].value_counts()
 
-    # Calculate ticket percentages for each gender
     ticket_percentages = ticket_counts / ticket_counts.sum() * 100
 
-    # Create a DataFrame for the percentages
     ticket_percentages_df = ticket_percentages.reset_index()
     ticket_percentages_df.columns = ['subject_sex', 'percentage']
 
-    # Map gender names to the subject_sex column
     ticket_percentages_df['subject_sex'] = ticket_percentages_df['subject_sex'].map(gender_names)
 
-    # Plot using Plotly Express
     fig = px.pie(ticket_percentages_df, values='percentage', names='subject_sex', 
                  title='Percentage of Speeding Tickets by Gender',
                  color_discrete_sequence=['#ff9999', '#66b3ff'],
@@ -109,36 +58,32 @@ def gender_distribution(df):
         gender_count,
         x=gender_count.index,
         y=gender_count.values,
-        labels={'x': 'Gender', 'y': 'Count'},
-        title='Gender Count'
+        labels= None,
+        title=None
     )
 
     return fig
 
-def update_number_of_tickets(df):
+import plotly.express as px
 
+def update_number_of_tickets_years(df):
     df['timestamp'] = pd.to_datetime(df['timestamp'])
     ticket_count_years = df['timestamp'].dt.year.value_counts().sort_index()
-    ticket_count_month = df['timestamp'].dt.month.value_counts().sort_index()
-    ticket_count_day = df['timestamp'].dt.day.value_counts().sort_index()
 
-    figures = {
-        'years': px.line(ticket_count_years, x=ticket_count_years.index, y=ticket_count_years.values,
-                         labels={'x': 'Year', 'y': 'Number of Tickets'}, title='Number of Tickets by Year'),
-        'months': px.line(ticket_count_month, x=ticket_count_month.index, y=ticket_count_month.values,
-                          labels={'x': 'Month', 'y': 'Number of Tickets'}, title='Number of Tickets by Month'),
-        'days': px.line(ticket_count_day, x=ticket_count_day.index, y=ticket_count_day.values,
-                        labels={'x': 'Day', 'y': 'Number of Tickets'}, title='Number of Tickets by Day')
-    }
+    unique_years = sorted(df['timestamp'].dt.year.unique())
 
-    return figures
+    figure = px.bar(x=unique_years, y=ticket_count_years.values,
+                    labels={'x': 'Year'}, 
+                    title='Number of Tickets by Year')
 
-# Update the month distribution plot
-def month_distribution(df):
+    return figure
+
+
+def update_number_of_tickets_months(df):
     df['timestamp'] = pd.to_datetime(df['timestamp'])
+    ticket_count_month = df['timestamp'].dt.month.value_counts().sort_index()
 
-    tickets_per_month = df['timestamp'].dt.month.value_counts().sort_index()
-
+    # Map des noms des mois
     month_names = {
         1: 'January',
         2: 'February',
@@ -154,34 +99,30 @@ def month_distribution(df):
         12: 'December'
     }
 
-    tickets_per_month.index = tickets_per_month.index.map(month_names)
+    ticket_count_month = ticket_count_month.reindex(month_names.keys()).fillna(0)
 
-    # Créer le graphique
-    fig = px.bar(
-        tickets_per_month,
-        x=tickets_per_month.index,
-        y=tickets_per_month.values,
-        labels={'x': 'Month', 'y': 'Number of Tickets'},
-        title='Number of Tickets per Month'
-    )
+    figure = px.line(ticket_count_month, x=month_names.values(), y=ticket_count_month.values,
+                     labels={'x': 'Month'}, title='Number of Tickets by Month')
 
-    return fig
+    return figure
 
-# Update the year distribution plot
-def years_distribution(df):
+def update_number_of_tickets_days(df):
     df['timestamp'] = pd.to_datetime(df['timestamp'])
-    tickets_per_year = df['timestamp'].dt.year.value_counts().sort_index()
+    ticket_count_day = df['timestamp'].dt.day.value_counts().sort_index()
 
-    fig = px.line(
-        tickets_per_year,
-        x=tickets_per_year.index,
-        y=tickets_per_year.values,
-        labels={'x': 'Year', 'y': 'Number of Tickets'},
-        title=None
-    )
+    figure = px.line(ticket_count_day, x=ticket_count_day.index, y=ticket_count_day.values,
+                     labels={'x': 'Day'}, title='Number of Tickets by Day')
 
-    return fig
+    return figure
 
+def update_number_of_tickets_hours(df):
+    df['timestamp'] = pd.to_datetime(df['timestamp'])
+    ticket_count_hour = df['timestamp'].dt.hour.value_counts().sort_index()
+
+    figure = px.bar(x=ticket_count_hour.index, y=ticket_count_hour.values,
+                    labels={'x': 'Hour'}, title='Number of Tickets by Hour')
+
+    return figure
 
 
 def county_distribution(df):
