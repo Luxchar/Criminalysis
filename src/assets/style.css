@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Danfo&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap');
 
 body {
     font-family: 'Arial, sans-serif';
@@ -6,7 +7,7 @@ body {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    
+    max-width: 100%;
 }
 
 header {
@@ -17,13 +18,12 @@ header {
     padding: 10px;
 }
 
-.intro-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    margin-top: 20px;
-    margin-bottom: 20px;
+.intro-text {
+    text-align: center;
+    margin-left: 32%;
+    font-size: 30px;
+    font-weight: 100;
+    width: 37%;
 }
 
 .card {
@@ -36,17 +36,10 @@ header {
 .card-container {
     display: flex;
     justify-content: center;
+    text-align: center;
     gap: 20px;
     margin-top: 20px;
     margin-bottom: 20px;
-}
-
-h3, h4 {
-    margin: 0;
-}
-
-p {
-    margin: 10px 0;
 }
 
 H1 {
@@ -54,9 +47,13 @@ H1 {
     font-family: 'danfo', sans-serif;
 }
 
-.intro-text {
-    text-align: center;
-    font-size: 30px;
-    margin-top: 20px;
-    margin-bottom: 20px;
+h3, h4 {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
 }
+
+p {
+    font-family: 'Arial', sans-serif;
+    margin: 10px 0;
+}
+

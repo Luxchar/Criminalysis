@@ -7,7 +7,7 @@ from dash_bootstrap_templates import ThemeChangerAIO, template_from_url
 from plots import *
 
 # Load all data from the CSV
-df = pd.read_csv('./data/tx_statewide_2020_04_01-002_clean.csv', nrows=100000)
+df = pd.read_csv('./data/tx_statewide_2020_04_01-002_clean.csv', nrows=100)
 
 # URL for the Bootstrap CSS file
 dbc_css = "./assets/style.css"
@@ -69,37 +69,40 @@ def plot_disparity_by_race(df):
 # Define the layout of the app
 app.layout = html.Div([
     html.Header(
-        html.H1("CRIMANALISYS"),
-        html.P("TEXAS", className="header-subtitle")
+        html.Div([
+            html.H1("CRIMANALISYS"),
+            html.P("TEXAS", className="header-subtitle")
+        ], className="header-content")
     ),
 
     html.Div([
         html.Div([
-            html.P("Today, there are approximately 30 million residents in Texas. There have been 19 million arrests recorded since 2006, but that's only a small portion. Despite this, gender disparities and ethnis discrimination still exist."),
-        ], className="intro-text"),  
-    ], className="intro-container"),
+                html.P("Today, there are approximately 30 million residents in Texas. There have been 19 million arrests recorded since 2006, but that's only a small portion. Despite this, gender disparities and ethnis discrimination still exist."),
+            ], className="intro-text"),
 
-    # Cards showing the number of data points for each category
-    html.Div([
+        # Cards showing the number of data points for each category
         html.Div([
             html.Div([
-                html.H4("Loaded Data"),
-                html.H3(id='total-data', children=len(df))
-            ], className="card-content"),
-        ], className="card"),
-        html.Div([
+                html.Div([
+                    html.H4("Loaded Data"),
+                    html.H3(id='total-data', children=len(df))
+                ], className="card-content"),
+            ], className="card"),
             html.Div([
-                html.H4("Search Conducted"),
-                html.H3(id='search-conducted', children=df['search_conducted'].sum())
-            ], className="card-content"),
-        ], className="card"),
-        html.Div([
+                html.Div([
+                    html.H4("Search Conducted"),
+                    html.H3(id='search-conducted', children=df['search_conducted'].sum())
+                ], className="card-content"),
+            ], className="card"),
             html.Div([
-                html.H4("Search Vehicle"),
-                html.H3(id='search-vehicle', children=df['search_vehicle'].sum())
-            ], className="card-content"),
-        ], className="card"),
-    ], className="card-container"),
+                html.Div([
+                    html.H4("Search Vehicle"),
+                    html.H3(id='search-vehicle', children=df['search_vehicle'].sum())
+                ], className="card-content"),
+            ], className="card"),
+        ], className="card-container"),
+    ], className="half-container"),
+
 
     # Map showing the crime data
     html.Div([
