@@ -69,7 +69,8 @@ def plot_disparity_by_race(df):
 # Define the layout of the app
 app.layout = html.Div([
     html.Header(
-        html.H1("CRIMANALISYS")
+        html.H1("CRIMANALISYS"),
+        html.P("TEXAS", className="header-subtitle")
     ),
 
     html.Div([
@@ -77,7 +78,7 @@ app.layout = html.Div([
             html.P("Today, there are approximately 30 million residents in Texas. There have been 19 million arrests recorded since 2006, but that's only a small portion. Despite this, gender disparities and ethnis discrimination still exist."),
         ], className="intro-text"),  
     ], className="intro-container"),
-    
+
     # Cards showing the number of data points for each category
     html.Div([
         html.Div([
