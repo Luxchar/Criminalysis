@@ -143,6 +143,7 @@ app.layout = html.Div([
         html.P("From 2006 to 2020, the number of arrests in Texas has increased. However, there are still disparities."),
         # By gender
         dcc.Graph(id='update-speed-violation-distribution'),
+        dcc.Graph(id='update-gender-comparison'),
     ]),
 
     # Some text and a dropdown for selecting the time stamp
@@ -198,6 +199,7 @@ app.layout = html.Div([
      Output('crime-map', 'figure'),
      Output('update-racial-disparities', 'figure'),
      Output('update-speed-violation-distribution', 'figure'),
+     Output('update-gender-comparison', 'figure'),
      Output('county-distribution-plot', 'figure'),
      Output('tickets-plot-years', 'figure'),
      Output('tickets-plot-months', 'figure'),
@@ -208,7 +210,7 @@ app.layout = html.Div([
 
 def update_data(percentage):
     # Load the data with the specified percentage of rows
-    max_rows = 100000
+    max_rows = 500000
     nrows = int(max_rows * percentage)
     df = pd.read_csv('./data/tx_statewide_2020_04_01-002_clean.csv', nrows=nrows)
     
@@ -240,6 +242,7 @@ def update_data(percentage):
     racial_disparities_figure = plot_disparity_by_race(df)
     speed_violation_distribution_figure = speed_violation_distribution(df, gender_names)
     county_distribution_figure = county_distribution(df)
+    gender_comparison_figure = update_gender_comparison(df)
     
     # Update for histogram plots with median
     tickets_years_figure = update_number_of_tickets_years(df)
@@ -249,7 +252,7 @@ def update_data(percentage):
     
     return (total_data, search_conducted, search_vehicle, crime_map_figure, 
             racial_disparities_figure, speed_violation_distribution_figure, 
-            county_distribution_figure, tickets_years_figure, 
+            county_distribution_figure, tickets_years_figure, gender_comparison_figure,
             tickets_months_figure, tickets_days_figure, tickets_hours_figure)
 
 # Run the app

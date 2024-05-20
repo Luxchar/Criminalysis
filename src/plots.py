@@ -4,8 +4,18 @@ import plotly.graph_objects as go
 
 def update_gender_comparison(df):
     gender_counts = df['subject_sex'].value_counts()
-    fig = px.pie(gender_counts, names=gender_counts.index, title='Arrests by Gender')
+
+    total_counts = gender_counts.sum()
+    gender_percentage = (gender_counts / total_counts) * 100
+
+    fig = px.pie(names=gender_percentage.index,
+                 values=gender_percentage.values,
+                 labels={'values': 'Percentage', 'names': 'Gender'},
+                 title='Gender Comparison',
+                 hole=0.3)
+
     return fig
+
 
 def update_arrest_density_map(df, selected_year):
     filtered_df = df[df['year'] == selected_year]
@@ -42,8 +52,7 @@ def speed_violation_distribution(df, gender_names):
 
     ticket_percentages_df['subject_sex'] = ticket_percentages_df['subject_sex'].map(gender_names)
 
-    fig = px.pie(ticket_percentages_df, values='percentage', names='subject_sex', 
-                 title='Percentage of Speeding Tickets by Gender',
+    fig = px.pie(ticket_percentages_df, values='percentage', names='subject_sex',
                  color_discrete_sequence=['#ff9999', '#66b3ff'],
                  labels={'percentage': 'Percentage', 'subject_sex': 'Gender'},
                  hole=0.3)
@@ -117,11 +126,18 @@ def update_number_of_tickets_hours(df):
     df['timestamp'] = pd.to_datetime(df['timestamp'])
     ticket_count_hour = df['timestamp'].dt.hour.value_counts().sort_index()
 
+    # Bar plot for number of tickets by hour
     figure = px.bar(x=ticket_count_hour.index, y=ticket_count_hour.values,
-                    labels={'x': 'Hour'}, title='Number of Tickets by Hour')
+                    labels={'x': 'Hour'})
+
+    # Calculate the subject race counts by hour
+    race_counts_by_hour = df.groupby([df['timestamp'].dt.hour, 'subject_race']).size().unstack(fill_value=0)
+
+    # Plot barplots for each subject race
+    for race in race_counts_by_hour.columns:
+        figure.add_trace(go.Bar(x=race_counts_by_hour.index, y=race_counts_by_hour[race], name=race))
 
     return figure
-
 
 def county_distribution(df):
     county_counts = df['county_name'].value_counts().reset_index()
