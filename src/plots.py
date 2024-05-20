@@ -42,7 +42,6 @@ def plot_disparity_by_race(df):
 
 
 def update_gender_comparison(df):
-    # Créer le graphique de répartition par genre
     gender_counts = df['subject_sex'].value_counts()
     fig = px.pie(gender_counts, names=gender_counts.index, title='Arrests by Gender')
     return fig
@@ -170,3 +169,31 @@ def update_number_of_tickets(df):
     }
 
     return figures
+
+def county_distribution(df):
+    county_counts = df['county_name'].value_counts().reset_index()
+    county_counts.columns = ['county_name', 'count']
+
+    fig = px.scatter(
+        county_counts,
+        x='county_name',
+        y='count',
+        size='count',
+        labels={'county_name': 'County', 'count': 'Count'},
+        title='County Distribution',
+        color='county_name',
+        size_max=60,
+    )
+
+    fig.update_layout(
+        xaxis_title='County',
+        yaxis_title='Count',
+        showlegend=False,
+        plot_bgcolor='white'
+    )
+
+    fig.update_traces(
+        hovertemplate='<b>County:</b> %{x}<br><b>Count:</b> %{y}<extra></extra>'
+    )
+
+    return fig
