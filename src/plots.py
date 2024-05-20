@@ -182,7 +182,7 @@ def county_distribution(df):
         labels={'county_name': 'County', 'count': 'Count'},
         title='County Distribution',
         color='county_name',
-        size_max=60,
+        size_max=100,
     )
 
     fig.update_layout(

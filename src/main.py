@@ -7,7 +7,7 @@ from dash_bootstrap_templates import ThemeChangerAIO, template_from_url
 from plots import *
 
 # Load all data from the CSV
-df = pd.read_csv('./data/tx_statewide_2020_04_01-002_clean.csv')
+df = pd.read_csv('./data/tx_statewide_2020_04_01-002_clean.csv', nrows=200000)
 
 # URL for the Bootstrap CSS file
 dbc_css = "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates@V1.0.1/dbc.min.css"
@@ -72,13 +72,9 @@ app.layout = html.Div([
         style={'textAlign': 'center', 'margin': '0', 'background': 'black', 'color': 'white', 'padding': '10px'}
     ),
 
-    html.P("Today, there are approximately 30 million residents in Texas. There have been 19 million arrests recorded since 2013, but that's only a small portion. Despite this, gender disparities and racial discrimination still exist."),
-
     html.Div([
-        html.Div([
-            html.Label('Data loaded successfully!'),
-        ], style={'margin-top': '20px', 'margin-bottom': '20px', 'display': 'flex', 'flexDirection': 'column', 'alignItems': 'center'}),
-    ], style={'margin-top': '20px', 'margin-bottom': '20px', 'display': 'flex', 'justify-content': 'center'}),
+        html.P("Today, there are approximately 30 million residents in Texas. There have been 19 million arrests recorded since 2013, but that's only a small portion. Despite this, gender disparities and racial discrimination still exist."),
+    ]),  
 
     # Cards showing the number of data points for each category
     html.Div([
@@ -137,10 +133,11 @@ app.layout = html.Div([
 
     # Some text and a dropdown for selecting the time stamp
     html.P("The number of tickets issued in Texas has increased over the years. The graph below shows the number of tickets issued over the years."),
+
     html.Div([
         html.H3('Number of Tickets Issued Over Time'),
         html.P("The graph below shows the number of tickets issued over the years."),
-        ], style={'margin-top': '20px', 'margin-bottom': '20px'}),
+    ], style={'margin-top': '20px', 'margin-bottom': '20px'}),
 
     html.H3('This graph does not necessarily show whether there are peaks in arrests depending on the month. On average there are more than 1.5 million arrests per month.'),
 
@@ -150,7 +147,7 @@ app.layout = html.Div([
 
     html.H3('In 2023 the number of people living in Texas is approximately 42%. The remaining 58% are of different ethnicities.(source: Google)'),
 
-    html.H3('THE MOST COUNTY WITH THE HIGHEST NUMBER OF ARRESTS IS HARRIS COUNTY.'),
+    html.H3('THE MOST COUNTY WITH THE HIGHEST NUMBER OF ARRESTS.'),
 
     # Static bubble chart for county distribution
     dcc.Graph(
