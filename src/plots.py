@@ -100,43 +100,6 @@ def speed_violation_distribution(df, gender_names):
                  hole=0.3)
     return fig
 
-# Update the month distribution plot
-def month_distribution(df):
-    # Convertir la colonne 'timestamp' en type datetime
-    df['timestamp'] = pd.to_datetime(df['timestamp'])
-
-    # Calculer le nombre de tickets par mois
-    tickets_per_month = df['timestamp'].dt.month.value_counts().sort_index()
-
-    # Mapper les numéros de mois aux noms de mois
-    month_names = {
-        1: 'January',
-        2: 'February',
-        3: 'March',
-        4: 'April',
-        5: 'May',
-        6: 'June',
-        7: 'July',
-        8: 'August',
-        9: 'September',
-        10: 'October',
-        11: 'November',
-        12: 'December'
-    }
-
-    # Renommer l'index tickets_per_month en utilisant le dictionnaire month_names
-    tickets_per_month.index = tickets_per_month.index.map(month_names)
-
-    # Créer le graphique
-    fig = px.bar(
-        tickets_per_month,
-        x=tickets_per_month.index,
-        y=tickets_per_month.values,
-        labels={'x': 'Month', 'y': 'Number of Tickets'},
-        title='Number of Tickets per Month'
-    )
-
-    return fig
 
 # Plot the count of men and women
 def gender_distribution(df):
@@ -170,30 +133,96 @@ def update_number_of_tickets(df):
 
     return figures
 
-def county_distribution(df):
-    county_counts = df['county_name'].value_counts().reset_index()
-    county_counts.columns = ['county_name', 'count']
+# Update the month distribution plot
+def month_distribution(df):
+    df['timestamp'] = pd.to_datetime(df['timestamp'])
 
-    fig = px.scatter(
-        county_counts,
-        x='county_name',
-        y='count',
-        size='count',
-        labels={'county_name': 'County', 'count': 'Count'},
-        title='County Distribution',
-        color='county_name',
-        size_max=100,
-    )
+    tickets_per_month = df['timestamp'].dt.month.value_counts().sort_index()
 
-    fig.update_layout(
-        xaxis_title='County',
-        yaxis_title='Count',
-        showlegend=False,
-        plot_bgcolor='white'
-    )
+    month_names = {
+        1: 'January',
+        2: 'February',
+        3: 'March',
+        4: 'April',
+        5: 'May',
+        6: 'June',
+        7: 'July',
+        8: 'August',
+        9: 'September',
+        10: 'October',
+        11: 'November',
+        12: 'December'
+    }
 
-    fig.update_traces(
-        hovertemplate='<b>County:</b> %{x}<br><b>Count:</b> %{y}<extra></extra>'
+    tickets_per_month.index = tickets_per_month.index.map(month_names)
+
+    # Créer le graphique
+    fig = px.bar(
+        tickets_per_month,
+        x=tickets_per_month.index,
+        y=tickets_per_month.values,
+        labels={'x': 'Month', 'y': 'Number of Tickets'},
+        title='Number of Tickets per Month'
     )
 
     return fig
+
+# Update the year distribution plot
+def years_distribution(df):
+    df['timestamp'] = pd.to_datetime(df['timestamp'])
+    tickets_per_year = df['timestamp'].dt.year.value_counts().sort_index()
+
+    fig = px.line(
+        tickets_per_year,
+        x=tickets_per_year.index,
+        y=tickets_per_year.values,
+        labels={'x': 'Year', 'y': 'Number of Tickets'},
+        title=None
+    )
+
+    return fig
+
+
+
+def county_distribution(df):
+    county_counts = df['county_name'].value_counts().reset_index()
+    county_counts.columns = ['county_name', 'count']
+    top_counties = county_counts.nlargest(30, 'count')
+    median = top_counties['count'].median()
+
+    fig = px.scatter(
+        top_counties,
+        x='count',
+        y='county_name',
+        size='count',
+        labels=None,
+        title=None,
+        color='county_name',
+        size_max=15,
+    )
+
+    fig.update_layout(
+        xaxis_title=None,
+        yaxis_title=None,
+        showlegend=False,
+        plot_bgcolor='White',
+        height=800,
+        yaxis=dict(showticklabels=False),  # Hide the county names on the y-axis
+    )
+
+    fig.update_traces(
+        hovertemplate='<b>County:</b> %{y}<br><b>Count:</b> %{x}<extra></extra>'
+    )
+
+    # Add median line
+    fig.add_shape(
+        type="line",
+        x0=median,
+        y0=-0.5,
+        x1=median,
+        y1=len(top_counties)-0.5,
+        line=dict(color="Black", width=2),
+    )
+
+    return fig
+

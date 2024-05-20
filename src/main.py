@@ -7,7 +7,7 @@ from dash_bootstrap_templates import ThemeChangerAIO, template_from_url
 from plots import *
 
 # Load all data from the CSV
-df = pd.read_csv('./data/tx_statewide_2020_04_01-002_clean.csv', nrows=200000)
+df = pd.read_csv('./data/tx_statewide_2020_04_01-002_clean.csv', nrows=100000)
 
 # URL for the Bootstrap CSS file
 dbc_css = "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates@V1.0.1/dbc.min.css"
@@ -73,7 +73,7 @@ app.layout = html.Div([
     ),
 
     html.Div([
-        html.P("Today, there are approximately 30 million residents in Texas. There have been 19 million arrests recorded since 2013, but that's only a small portion. Despite this, gender disparities and racial discrimination still exist."),
+        html.P("Today, there are approximately 30 million residents in Texas. There have been 19 million arrests recorded since 2006, but that's only a small portion. Despite this, gender disparities and ethnis discrimination still exist."),
     ]),  
 
     # Cards showing the number of data points for each category
@@ -126,10 +126,8 @@ app.layout = html.Div([
     # Disparity 
     html.Div([
         html.H3('From 2013 to 2020, the number of arrests in Texas has increased. However, there are still disparities between different ethnicities.'),
-        dcc.Graph(id='disparity-by-race-plot', figure=plot_disparity_by_race(df)),
+        dcc.Graph(id='update-racial-disparities', figure=plot_disparity_by_race(df)),
     ], style={'margin-top': '20px', 'margin-bottom': '20px', 'display': 'flex', 'flexDirection': 'column', 'alignItems': 'center'}),
-
-    dcc.Graph(id='update-gender-comparison', figure=update_gender_comparison(df)),
 
     # Some text and a dropdown for selecting the time stamp
     html.P("The number of tickets issued in Texas has increased over the years. The graph below shows the number of tickets issued over the years."),
@@ -145,18 +143,22 @@ app.layout = html.Div([
 
     html.H3('Different types of arrests exist but we wanted to take into account only speeding.'),
 
-    html.H3('In 2023 the number of people living in Texas is approximately 42%. The remaining 58% are of different ethnicities.(source: Google)'),
+    html.H3('In 2023 the number of people living in Texas is approximately 42% white. The remaining 58% are of different ethnicities.'),
 
-    html.H3('THE MOST COUNTY WITH THE HIGHEST NUMBER OF ARRESTS.'),
+    html.Div([
+        html.H3('THE MOST COUNTY WITH THE HIGHEST NUMBER OF ARRESTS.'),
 
-    # Static bubble chart for county distribution
-    dcc.Graph(
-        id='county-distribution-plot',
-        figure=county_distribution(df)
-    ),
+        html.Div([
+            # Static bubble chart for county distribution
+            dcc.Graph(
+                id='county-distribution-plot',
+                figure=county_distribution(df),
+            ),
+            html.P("The graph above shows the distribution of arrests by county in Texas."),
+        ], style={'margin-top': '20px', 'margin-bottom': '20px', 'display': 'flex', 'flexDirection': 'column', 'alignItems': 'center'}),
+    ]),
 
     # Dropdown for selecting the plot type
-    html.Label('Select the Time Stamp:'),
     dcc.Dropdown(
         id='plot-type-dropdown',
         options=[
@@ -168,14 +170,21 @@ app.layout = html.Div([
         style={'width': '50%', 'margin': 'auto'}
     ),
 
+
     # Graph for the tickets
     dcc.Graph(id='tickets-plot', figure=update_number_of_tickets(df)),
 
+    # dcc.Graph(id='month-distribution-plot', figure=month_distribution(df)),
+
+    # dcc.Graph(id='Year-distribution-plot', figure=years_distribution(df)),
+
+
+    # Violation distribution
     html.Div([
-        html.H3('Racial Disparities'),
+        html.H3('Disparities'),
         html.P("From 2013 to 2020, the number of arrests in Texas has increased. However, there are still disparities."),
-        dcc.Graph(id='update-racial-disparities', figure=update_racial_disparities(df, 'White')),
     ], style={'margin-top': '20px', 'margin-bottom': '20px'}),
+    # By gender
     dcc.Graph(id='update-speed-violation-distribution', figure=speed_violation_distribution(df, gender_names)),
 ], style={'max-width': '100%', 'margin': '0', 'padding': '0'})
 
@@ -187,7 +196,6 @@ app.layout = html.Div([
         Output('search-conducted', 'children'),
         Output('search-vehicle', 'children'),
         Output('crime-map', 'figure'),
-        Output('disparity-by-race-plot', 'figure'),
         Output('update-racial-disparities', 'figure'),
         Output('update-speed-violation-distribution', 'figure'),
         Output('tickets-plot', 'figure'),
