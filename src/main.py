@@ -6,8 +6,8 @@ import dash_bootstrap_components as dbc
 from dash_bootstrap_templates import ThemeChangerAIO, template_from_url
 from plots import *
 
-# Load only 1000 data points from the CSV
-df = pd.read_csv('./data/tx_statewide_2020_04_01-002_clean.csv', nrows=1000)
+# Load all data from the CSV
+df = pd.read_csv('./data/tx_statewide_2020_04_01-002_clean.csv')
 
 # URL for the Bootstrap CSS file
 dbc_css = "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates@V1.0.1/dbc.min.css"
@@ -31,12 +31,6 @@ gender_names = {
     0: 'Women',
     1: 'Men'
 }
-
-# Function to load data with a specified number of rows
-def load_data(nrows):
-    df = pd.read_csv('./data/tx_statewide_2020_04_01-002_clean.csv', nrows=nrows)
-    df['subject_race'] = df['subject_race'].map(race_names)
-    return df
 
 # Updated function to plot disparity by race
 def plot_disparity_by_race(df):
@@ -71,35 +65,6 @@ def plot_disparity_by_race(df):
 
     return fig
 
-# Function to create a bubble chart for county distribution
-def county_distribution(df):
-    county_counts = df['county_name'].value_counts().reset_index()
-    county_counts.columns = ['county_name', 'count']
-
-    fig = px.scatter(
-        county_counts,
-        x='county_name',
-        y='count',
-        size='count',
-        labels={'county_name': 'County', 'count': 'Count'},
-        title='County Distribution',
-        color='county_name',
-        size_max=60,
-    )
-
-    fig.update_layout(
-        xaxis_title='County',
-        yaxis_title='Count',
-        showlegend=False,
-        plot_bgcolor='white'
-    )
-
-    fig.update_traces(
-        hovertemplate='<b>County:</b> %{x}<br><b>Count:</b> %{y}<extra></extra>'
-    )
-
-    return fig
-
 # Define the layout of the app
 app.layout = html.Div([
     html.Header(
@@ -111,19 +76,8 @@ app.layout = html.Div([
 
     html.Div([
         html.Div([
-            html.Label('Number of rows to load:'),
-            dcc.Slider(
-                id='nrows-slider',
-                min=100,
-                max=5000,
-                step=100,
-                value=1000,
-                marks={i: str(i) for i in range(100, 5001, 500)}
-            ),
-            html.Div(id='slider-output-container', style={'textAlign': 'center', 'margin-top': '20px'}),
+            html.Label('Data loaded successfully!'),
         ], style={'margin-top': '20px', 'margin-bottom': '20px', 'display': 'flex', 'flexDirection': 'column', 'alignItems': 'center'}),
-
-        html.H3(id='total-arrests-text', style={'margin-top': '20px', 'margin-bottom': '20px', 'textAlign': 'center'}),
     ], style={'margin-top': '20px', 'margin-bottom': '20px', 'display': 'flex', 'justify-content': 'center'}),
 
     # Cards showing the number of data points for each category
@@ -131,41 +85,64 @@ app.layout = html.Div([
         html.Div([
             html.Div([
                 html.H4("Loaded Data"),
-                html.H3(id='total-data')
+                html.H3(id='total-data', children=len(df))
             ], className="card-content"),
         ], className="card"),
         html.Div([
             html.Div([
                 html.H4("Search Conducted"),
-                html.H3(id='search-conducted')
+                html.H3(id='search-conducted', children=df['search_conducted'].sum())
             ], className="card-content"),
         ], className="card"),
         html.Div([
             html.Div([
                 html.H4("Search Vehicle"),
-                html.H3(id='search-vehicle')
+                html.H3(id='search-vehicle', children=df['search_vehicle'].sum())
             ], className="card-content"),
         ], className="card"),
     ], className="card-container", style={'margin-top': '20px', 'margin-bottom': '20px', 'display': 'flex', 'justify-content': 'center', 'gap': '20px'}),
 
     # Map showing the crime data
     html.Div([
-        dcc.Graph(id='crime-map'),
+        dcc.Graph(id='crime-map', figure=px.scatter_mapbox(
+            df,
+            lat='lat',
+            lon='lng',
+            zoom=5,
+            color='subject_race',
+            color_discrete_sequence=color_scale,
+            height=600
+        ).update_traces(
+            hovertemplate="<b>Race: </b> %{customdata[0]}<br><b>Sex: </b> %{customdata[1]}<br><b>Conducted: </b> %{customdata[2]}<br><b>Vehicle: </b> %{customdata[3]}",
+            customdata=df[['subject_race', 'subject_sex', 'search_conducted', 'search_vehicle']]
+        ).update_layout(
+            mapbox_style='open-street-map',
+            margin=dict(l=0, r=0, t=0, b=0),
+            coloraxis_colorbar=dict(
+                tickvals=list(race_names.keys()),
+                ticktext=list(race_names.values()),
+                x=0.85, y=0.05,
+                xanchor="left", yanchor="bottom",
+            )
+        )),
     ], style={'margin-top': '20px', 'margin-bottom': '20px'}),
 
-    dcc.Graph(id='disparity-by-race-plot'),
-    dcc.Graph(id='update-gender-comparison'),
+    # Disparity 
+    html.Div([
+        html.H3('From 2013 to 2020, the number of arrests in Texas has increased. However, there are still disparities between different ethnicities.'),
+        dcc.Graph(id='disparity-by-race-plot', figure=plot_disparity_by_race(df)),
+    ], style={'margin-top': '20px', 'margin-bottom': '20px', 'display': 'flex', 'flexDirection': 'column', 'alignItems': 'center'}),
+
+    dcc.Graph(id='update-gender-comparison', figure=update_gender_comparison(df)),
 
     # Some text and a dropdown for selecting the time stamp
     html.P("The number of tickets issued in Texas has increased over the years. The graph below shows the number of tickets issued over the years."),
     html.Div([
         html.H3('Number of Tickets Issued Over Time'),
         html.P("The graph below shows the number of tickets issued over the years."),
-    ], style={'margin-top': '20px', 'margin-bottom': '20px'}),
+        ], style={'margin-top': '20px', 'margin-bottom': '20px'}),
 
     html.H3('This graph does not necessarily show whether there are peaks in arrests depending on the month. On average there are more than 1.5 million arrests per month.'),
-
-    html.H3('From 2013 to 2020, the number of arrests in Texas has increased. However, there are still disparities between different ethnicities.'),
 
     html.H3('Overall in Texas, women are arrested much less than men.'),
 
@@ -195,22 +172,20 @@ app.layout = html.Div([
     ),
 
     # Graph for the tickets
-    dcc.Graph(id='tickets-plot'),
+    dcc.Graph(id='tickets-plot', figure=update_number_of_tickets(df)),
 
     html.Div([
         html.H3('Racial Disparities'),
         html.P("From 2013 to 2020, the number of arrests in Texas has increased. However, there are still disparities."),
-        dcc.Graph(id='update-racial-disparities'),
+        dcc.Graph(id='update-racial-disparities', figure=update_racial_disparities(df, 'White')),
     ], style={'margin-top': '20px', 'margin-bottom': '20px'}),
-
-    dcc.Graph(id='update-speed-violation-distribution'),
+    dcc.Graph(id='update-speed-violation-distribution', figure=speed_violation_distribution(df, gender_names)),
 ], style={'max-width': '100%', 'margin': '0', 'padding': '0'})
 
 
 # Callback to update the output
 @app.callback(
     [
-        Output('total-arrests-text', 'children'),
         Output('total-data', 'children'),
         Output('search-conducted', 'children'),
         Output('search-vehicle', 'children'),
@@ -218,62 +193,51 @@ app.layout = html.Div([
         Output('disparity-by-race-plot', 'figure'),
         Output('update-racial-disparities', 'figure'),
         Output('update-speed-violation-distribution', 'figure'),
-        Output('slider-output-container', 'children'),
         Output('tickets-plot', 'figure'),
     ],
     [
-        Input('nrows-slider', 'value'),
         Input('plot-type-dropdown', 'value')
     ]
 )
-def update_output(nrows, plot_type):
-    df = load_data(nrows)
-    total_data = len(df)
+def update_output(plot_type):
     search_conducted = df['search_conducted'].sum()
     search_vehicle = df['search_vehicle'].sum()
     figures = update_number_of_tickets(df)
 
-    crime_map_figure = px.scatter_mapbox(
-        df,
-        lat='lat',
-        lon='lng',
-        zoom=5,
-        color='subject_race',
-        color_discrete_sequence=color_scale,
-        height=600
-    ).update_traces(
-        hovertemplate="<b>Race: </b> %{customdata[0]}<br><b>Sex: </b> %{customdata[1]}<br><b>Conducted: </b> %{customdata[2]}<br><b>Vehicle: </b> %{customdata[3]}",
-        customdata=df[['subject_race', 'subject_sex', 'search_conducted', 'search_vehicle']]
-    ).update_layout(
-        mapbox_style='open-street-map',
-        margin=dict(l=0, r=0, t=0, b=0),
-        coloraxis_colorbar=dict(
-            tickvals=list(race_names.keys()),
-            ticktext=list(race_names.values()),
-            x=0.85, y=0.05,
-            xanchor="left", yanchor="bottom",
-        )
-    )
-
-    disparity_by_race_figure = plot_disparity_by_race(df)
-    gender_comparison_figure = update_gender_comparison(df)
-    racial_disparities_figure = update_racial_disparities(df, 'White')
-    speed_violation_distribution_figure = speed_violation_distribution(df, gender_names)
-    slider_output = f'Loading {nrows} rows'
-
     return (
-        f"The total number of arrests in Texas: {total_data}",
-        total_data,
+        len(df),
         search_conducted,
         search_vehicle,
-        crime_map_figure,
-        disparity_by_race_figure,
-        gender_comparison_figure,
-        racial_disparities_figure,
-        slider_output,
+        px.scatter_mapbox(
+            df,
+            lat='lat',
+            lon='lng',
+            zoom=5,
+            color='subject_race',
+            color_discrete_sequence=color_scale,
+            height=600
+        ).update_traces(
+            hovertemplate="<b>Race: </b> %{customdata[0]}<br><b>Sex: </b> %{customdata[1]}<br><b>Conducted: </b> %{customdata[2]}<br><b>Vehicle: </b> %{customdata[3]}",
+            customdata=df[['subject_race', 'subject_sex', 'search_conducted', 'search_vehicle']]
+        ).update_layout(
+            mapbox_style='open-street-map',
+            margin=dict(l=0, r=0, t=0, b=0),
+            coloraxis_colorbar=dict(
+                tickvals=list(race_names.keys()),
+                ticktext=list(race_names.values()),
+                x=0.85, y=0.05,
+                xanchor="left", yanchor="bottom",
+            )
+        ),
+        plot_disparity_by_race(df),
+        update_racial_disparities(df, 'White'),
+        speed_violation_distribution(df, gender_names),
         figures[plot_type]
     )
+
 
 # Run the app
 if __name__ == '__main__':
     app.run_server(debug=True)
+
+   
