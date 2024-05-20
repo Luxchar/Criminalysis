@@ -38,8 +38,7 @@ header {
     justify-content: center;
     text-align: center;
     gap: 20px;
-    margin-top: 20px;
-    margin-bottom: 20px;
+    margin: 50px 0;
 }
 
 H1 {
@@ -57,3 +56,15 @@ p {
     margin: 10px 0;
 }
 
+.slider-title{
+    text-align: center;
+    font-family: 'danfo', sans-serif;
+    font-size: 30px;
+    font-weight: 100;
+    margin: 50px 0;
+}
+
+.dropdown-half-container{
+    gap: 20px;
+    margin: 50px 0;
+}

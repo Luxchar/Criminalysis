@@ -64,8 +64,6 @@ def gender_distribution(df):
 
     return fig
 
-import plotly.express as px
-
 def update_number_of_tickets_years(df):
     df['timestamp'] = pd.to_datetime(df['timestamp'])
     ticket_count_years = df['timestamp'].dt.year.value_counts().sort_index()
@@ -101,7 +99,7 @@ def update_number_of_tickets_months(df):
 
     ticket_count_month = ticket_count_month.reindex(month_names.keys()).fillna(0)
 
-    figure = px.line(ticket_count_month, x=month_names.values(), y=ticket_count_month.values,
+    figure = px.bar(ticket_count_month, x=month_names.values(), y=ticket_count_month.values,
                      labels={'x': 'Month'}, title='Number of Tickets by Month')
 
     return figure
@@ -110,7 +108,7 @@ def update_number_of_tickets_days(df):
     df['timestamp'] = pd.to_datetime(df['timestamp'])
     ticket_count_day = df['timestamp'].dt.day.value_counts().sort_index()
 
-    figure = px.line(ticket_count_day, x=ticket_count_day.index, y=ticket_count_day.values,
+    figure = px.bar(ticket_count_day, x=ticket_count_day.index, y=ticket_count_day.values,
                      labels={'x': 'Day'}, title='Number of Tickets by Day')
 
     return figure
