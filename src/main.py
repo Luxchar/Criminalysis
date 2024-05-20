@@ -210,7 +210,7 @@ app.layout = html.Div([
 
 def update_data(percentage):
     # Load the data with the specified percentage of rows
-    max_rows = 500000
+    max_rows = 1000000
     nrows = int(max_rows * percentage)
     df = pd.read_csv('./data/tx_statewide_2020_04_01-002_clean.csv', nrows=nrows)
     
