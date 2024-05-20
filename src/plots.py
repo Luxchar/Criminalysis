@@ -147,23 +147,17 @@ def gender_distribution(df):
         gender_count,
         x=gender_count.index,
         y=gender_count.values,
-        labels={'x': 'Gender', 'y': 'Count'},  # Définissez les étiquettes des axes
+        labels={'x': 'Gender', 'y': 'Count'},
         title='Gender Count'
     )
 
     return fig
 
 def update_number_of_tickets(df):
-    # Convertir les colonnes de dates en type datetime
+
     df['timestamp'] = pd.to_datetime(df['timestamp'])
-
-    # Total number of tickets by years
     ticket_count_years = df['timestamp'].dt.year.value_counts().sort_index()
-
-    # Total number of tickets by months
     ticket_count_month = df['timestamp'].dt.month.value_counts().sort_index()
-
-    # Total number of tickets by days of month
     ticket_count_day = df['timestamp'].dt.day.value_counts().sort_index()
 
     figures = {
