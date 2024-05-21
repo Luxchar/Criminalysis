@@ -84,7 +84,7 @@ app.layout = html.Div([
 
     html.Div([
         html.Div([
-            html.P("Today, there are approximately 30 million residents in Texas. There have been 19 million arrests recorded since 2006, but that's only a small portion. Despite this, gender disparities and ethnis discrimination still exist."),
+            html.P("Today, there are approximately 30 million residents in Texas. There have been 19 million arrests recorded since 2007, but that's only a small portion. Despite this, gender disparities and ethnis discrimination still exist."),
         ], className="intro-text"),
 
         # Cards showing the number of data points for each category
@@ -143,7 +143,7 @@ app.layout = html.Div([
 
     # Disparity 
     html.Div([
-        html.H2('From 2006 to 2020, the number of arrests in Texas has increased. However, there are still disparities between different ethnicities.'),
+        html.H2('From 2007 to 2020, the number of arrests in Texas has increased. However, there are still disparities between different ethnicities.'),
         dcc.Graph(id='update-racial-disparities'),
     ], className="disparity-container"),
 
@@ -153,7 +153,7 @@ app.layout = html.Div([
     html.Div([
         html.Div([
             dcc.Graph(id='update-speed-violation-distribution'),
-            html.P("Always from 2006 to 2020, the number of arrests in Texas has increased. However, there are still disparities between MALE and FEMALE.", className="gender-txt"),
+            html.P("Always from 2007 to 2020, the number of arrests in Texas has increased. However, there are still disparities between MALE and FEMALE.", className="gender-txt"),
         ], className="Gender-container"),
         html.Div([
             dcc.Graph(id='update-gender-comparison'),
