@@ -138,6 +138,7 @@ app.layout = html.Div([
 
     # Map showing the crime data
     html.Div([
+        html.H2('In Texas, there is 48% White people and 52% other ethnicities. The map below shows the distribution'),
         dcc.Graph(id='crime-map'),
     ]),
 
