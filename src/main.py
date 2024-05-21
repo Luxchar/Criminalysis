@@ -114,6 +114,7 @@ app.layout = html.Div([
     html.Div([
         html.Div([
             html.H2("LOAD MORE DATA", className="slider-title"),
+            html.P("The data is so large that we can only load a portion of it.", className="slider-subtitle"),
             dcc.Dropdown(
                 id='data-dropdown',
                 options=[
@@ -147,36 +148,39 @@ app.layout = html.Div([
     ], className="disparity-container"),
 
     # Violation distribution
+    html.H2('There is disparities between Male and Female ? Let\'s see the distribution of speeding'),
+
     html.Div([
         html.Div([
-            html.H2('Disparities'),
-            html.P("From 2006 to 2020, the number of arrests in Texas has increased. However, there are still disparities between MALE and FEMALE."),
             dcc.Graph(id='update-speed-violation-distribution'),
-        ]),
+            html.P("Always from 2006 to 2020, the number of arrests in Texas has increased. However, there are still disparities between MALE and FEMALE.", className="gender-txt"),
+        ], className="Gender-container"),
         html.Div([
-            html.H3('Overall in Texas, women are arrested much less than men for speeding.'),
             dcc.Graph(id='update-gender-comparison'),
-        ]),
+            html.H3('Overall in Texas, women are arrested much less than men for speeding.', className="gender-txt"),
+        ], className="Gender-container"),
     ], className="Gender-distribution-container"),
 
-    html.Div([
-        html.H3('The graph below shows the distribution of arrests by county in Texas.'),
-        dcc.Graph(id='update-violation-distribution'),
-    ]),
+    html.H3('Different types of arrests exist but we wanted to take into account only speeding.'),
 
     html.Div([
-        html.H3('Number of Tickets Issued Over Time'),
-        html.P("The graph below shows the number of tickets issued over the years."),
+        dcc.Graph(id='update-violation-distribution'),
     ]),
 
     html.Div([
         html.H3('THE MOST COUNTY WITH THE HIGHEST NUMBER OF ARRESTS.'),
 
         html.Div([
+            html.H3('The graph below shows the distribution of arrests by county in Texas.'),
             # Static bubble chart for county distribution
             dcc.Graph(id='county-distribution-plot'),
-            html.P("The graph above shows the distribution of arrests by county in Texas."),
+            html.P("The graph above shows the distribution of arrests by county in Texas. The HIDALGO County has the highest number of arrests."),
         ], className="county-distribution-container"),
+    ]),
+
+    html.Div([
+        html.H3('Number of Tickets Issued Over Time'),
+        html.P("The graph below shows the number of tickets issued over the years."),
     ]),
 
     dcc.Dropdown(
@@ -198,8 +202,6 @@ app.layout = html.Div([
         dcc.Graph(id='tickets-plot-days'),
         dcc.Graph(id='tickets-plots-hours'),
     ]),
-
-    html.H3('Different types of arrests exist but we wanted to take into account only speeding.'),
 ])
 
 # Define the callback to update the data based on the dropdown value
@@ -270,4 +272,4 @@ def update_data(percentage):
 
 # Run the app
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(host='0.0.0.0', debug=True, port=8050)

@@ -87,7 +87,7 @@ def gender_distribution(df):
         x=gender_count.index,
         y=gender_count.values,
         labels= None,
-        title=None
+        title=None,
     )
 
     return fig
