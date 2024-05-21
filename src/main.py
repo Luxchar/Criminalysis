@@ -30,6 +30,16 @@ gender_names = {
     1: 'Men'
 }
 
+violation_names = {
+    0: 'Speeding',
+    1: 'Other'
+}
+
+color_mapping = {
+    0: 'blue',
+    1: 'red'
+}
+
 # Updated function to plot disparity by race
 def plot_disparity_by_race(df):
     race_counts = df['subject_race'].value_counts().reset_index()
@@ -144,10 +154,15 @@ app.layout = html.Div([
             dcc.Graph(id='update-speed-violation-distribution'),
         ]),
         html.Div([
-            html.H3('Overall in Texas, women are arrested much less than men.'),
+            html.H3('Overall in Texas, women are arrested much less than men for speeding.'),
             dcc.Graph(id='update-gender-comparison'),
         ]),
     ], className="Gender-distribution-container"),
+
+    html.Div([
+        html.H3('The graph below shows the distribution of arrests by county in Texas.'),
+        dcc.Graph(id='update-violation-distribution'),
+    ]),
 
     html.Div([
         html.H3('Number of Tickets Issued Over Time'),
@@ -161,8 +176,8 @@ app.layout = html.Div([
             # Static bubble chart for county distribution
             dcc.Graph(id='county-distribution-plot'),
             html.P("The graph above shows the distribution of arrests by county in Texas."),
-        ]),
-    ], className="county-distribution-container"),
+        ], className="county-distribution-container"),
+    ]),
 
     dcc.Dropdown(
         id='plot-type-dropdown',
@@ -196,6 +211,7 @@ app.layout = html.Div([
      Output('update-racial-disparities', 'figure'),
      Output('update-speed-violation-distribution', 'figure'),
      Output('update-gender-comparison', 'figure'),
+     Output('update-violation-distribution', 'figure'),
      Output('county-distribution-plot', 'figure'),
      Output('tickets-plot-years', 'figure'),
      Output('tickets-plot-months', 'figure'),
@@ -239,7 +255,8 @@ def update_data(percentage):
     speed_violation_distribution_figure = speed_violation_distribution(df, gender_names)
     county_distribution_figure = county_distribution(df)
     gender_comparison_figure = update_gender_comparison(df, gender_names)
-    
+    violation_distribution = update_violation_distribution(df, violation_names, color_mapping)
+
     # Update for histogram plots with median
     tickets_years_figure = update_number_of_tickets_years(df)
     tickets_months_figure = update_number_of_tickets_months(df)
@@ -247,7 +264,7 @@ def update_data(percentage):
     tickets_hours_figure = update_number_of_tickets_hours(df)
     
     return (total_data, search_conducted, search_vehicle, crime_map_figure, 
-            racial_disparities_figure, speed_violation_distribution_figure, gender_comparison_figure, 
+            racial_disparities_figure, speed_violation_distribution_figure, gender_comparison_figure, violation_distribution,
             county_distribution_figure, tickets_years_figure,
             tickets_months_figure, tickets_days_figure, tickets_hours_figure)
 

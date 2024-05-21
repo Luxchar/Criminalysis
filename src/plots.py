@@ -195,4 +195,33 @@ def county_distribution(df):
 
     return fig
 
+def update_violation_distribution(df, violation_names, color_mapping):
+    violation_counts = df['violation_parsed'].value_counts().reset_index()
+    violation_counts.columns = ['violation_parsed', 'count']
+    violation_counts['violation_parsed'] = violation_counts['violation_parsed'].map(violation_names)
 
+    fig = px.bar(
+        violation_counts,
+        x='violation_parsed',
+        y='count',
+        labels=None,
+        title=None,
+        color='violation_parsed',
+        color_discrete_map=color_mapping,
+    )
+
+    fig.update_layout(
+        xaxis_title=None,
+        yaxis_title=None,
+        showlegend=False,
+        plot_bgcolor='White',
+        xaxis=dict(showline=False, showgrid=False, showticklabels=True),
+        yaxis=dict(showline=False, showgrid=False, showticklabels=False),
+    )
+
+    fig.update_traces(
+        textposition='outside',
+        marker=dict(line=dict(width=0))
+    )
+
+    return fig
