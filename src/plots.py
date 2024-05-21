@@ -2,18 +2,51 @@ import plotly.express as px
 import pandas as pd
 import plotly.graph_objects as go
 
-def update_gender_comparison(df):
+def update_gender_comparison(df, gender_names):
     gender_counts = df['subject_sex'].value_counts()
 
     total_counts = gender_counts.sum()
     gender_percentage = (gender_counts / total_counts) * 100
 
-    fig = px.pie(names=gender_percentage.index,
-                 values=gender_percentage.values,
-                 labels={'values': 'Percentage', 'names': 'Gender'},
-                 title='Gender Comparison',
+    gender_percentage_df = gender_percentage.reset_index()
+    gender_percentage_df.columns = ['subject_sex', 'Percentage']
+
+    gender_percentage_df['subject_sex'] = gender_percentage_df['subject_sex'].map(gender_names)
+
+    fig = px.pie(gender_percentage_df,
+                 names='subject_sex',
+                 values='Percentage',
+                 labels={'Percentage': 'Percentage', 'subject_sex': 'Gender'},
                  hole=0.3)
 
+    fig.update_traces(
+        hoverinfo='label+percent',
+        textinfo='percent+label',
+        marker=dict(line=dict(color='#000000', width=2))
+    )
+
+    fig.update_layout(
+        showlegend=True
+    )
+
+    return fig
+
+def speed_violation_distribution(df, gender_names):
+    speeding_tickets = df[df['violation_parsed'] == 0]
+
+    ticket_counts = speeding_tickets['subject_sex'].value_counts()
+
+    ticket_percentages = ticket_counts / ticket_counts.sum() * 100
+
+    ticket_percentages_df = ticket_percentages.reset_index()
+    ticket_percentages_df.columns = ['subject_sex', 'percentage']
+
+    ticket_percentages_df['subject_sex'] = ticket_percentages_df['subject_sex'].map(gender_names)
+
+    fig = px.pie(ticket_percentages_df, values='percentage', names='subject_sex',
+                 color_discrete_sequence=['#ff9999', '#66b3ff'],
+                 labels={'percentage': 'Percentage', 'subject_sex': 'Gender'},
+                 hole=0.3)
     return fig
 
 
@@ -38,24 +71,6 @@ def update_racial_disparities(df, selected_race):
     race_counts = filtered_df['subject_sex'].value_counts()
     fig = px.pie(race_counts, names=race_counts.index,
                  title=f'Arrests by Gender for {selected_race} Race')
-    return fig
-
-def speed_violation_distribution(df, gender_names):
-    speeding_tickets = df[df['violation_parsed'] == 0]
-
-    ticket_counts = speeding_tickets['subject_sex'].value_counts()
-
-    ticket_percentages = ticket_counts / ticket_counts.sum() * 100
-
-    ticket_percentages_df = ticket_percentages.reset_index()
-    ticket_percentages_df.columns = ['subject_sex', 'percentage']
-
-    ticket_percentages_df['subject_sex'] = ticket_percentages_df['subject_sex'].map(gender_names)
-
-    fig = px.pie(ticket_percentages_df, values='percentage', names='subject_sex',
-                 color_discrete_sequence=['#ff9999', '#66b3ff'],
-                 labels={'percentage': 'Percentage', 'subject_sex': 'Gender'},
-                 hole=0.3)
     return fig
 
 
@@ -147,8 +162,8 @@ def county_distribution(df):
 
     fig = px.scatter(
         top_counties,
-        x='count',
-        y='county_name',
+        x='county_name',
+        y='count',
         size='count',
         labels=None,
         title=None,
@@ -162,22 +177,22 @@ def county_distribution(df):
         showlegend=False,
         plot_bgcolor='White',
         height=800,
-        yaxis=dict(showticklabels=False),  # Hide the county names on the y-axis
+        xaxis=dict(showticklabels=False),
     )
 
     fig.update_traces(
-        hovertemplate='<b>County:</b> %{y}<br><b>Count:</b> %{x}<extra></extra>'
+        hovertemplate='<b>County:</b> %{x}<br><b>Count:</b> %{y}<extra></extra>'
     )
 
-    # Add median line
     fig.add_shape(
         type="line",
-        x0=median,
-        y0=-0.5,
-        x1=median,
-        y1=len(top_counties)-0.5,
+        x0=-0.5,
+        y0=median,
+        x1=len(top_counties) - 0.5,
+        y1=median,
         line=dict(color="Black", width=2),
     )
 
     return fig
+
 

@@ -125,7 +125,6 @@ app.layout = html.Div([
         ], className="dropdown-container"),
     ], className="dropdown-half-container"),
 
-
     # Map showing the crime data
     html.Div([
         dcc.Graph(id='crime-map'),
@@ -139,28 +138,21 @@ app.layout = html.Div([
 
     # Violation distribution
     html.Div([
-        html.H2('Disparities'),
-        html.P("From 2006 to 2020, the number of arrests in Texas has increased. However, there are still disparities."),
-        # By gender
-        dcc.Graph(id='update-speed-violation-distribution'),
-        dcc.Graph(id='update-gender-comparison'),
-    ]),
-
-    # Some text and a dropdown for selecting the time stamp
-    html.P("The number of tickets issued in Texas has increased over the years. The graph below shows the number of tickets issued over the years."),
+        html.Div([
+            html.H2('Disparities'),
+            html.P("From 2006 to 2020, the number of arrests in Texas has increased. However, there are still disparities between MALE and FEMALE."),
+            dcc.Graph(id='update-speed-violation-distribution'),
+        ]),
+        html.Div([
+            html.H3('Overall in Texas, women are arrested much less than men.'),
+            dcc.Graph(id='update-gender-comparison'),
+        ]),
+    ], className="Gender-distribution-container"),
 
     html.Div([
         html.H3('Number of Tickets Issued Over Time'),
         html.P("The graph below shows the number of tickets issued over the years."),
     ]),
-
-    html.H3('This graph does not necessarily show whether there are peaks in arrests depending on the month. On average there are more than 1.5 million arrests per month.'),
-
-    html.H3('Overall in Texas, women are arrested much less than men.'),
-
-    html.H3('Different types of arrests exist but we wanted to take into account only speeding.'),
-
-    html.H3('In 2023 the number of people living in Texas is approximately 42% white. The remaining 58% are of different ethnicities.'),
 
     html.Div([
         html.H3('THE MOST COUNTY WITH THE HIGHEST NUMBER OF ARRESTS.'),
@@ -170,7 +162,7 @@ app.layout = html.Div([
             dcc.Graph(id='county-distribution-plot'),
             html.P("The graph above shows the distribution of arrests by county in Texas."),
         ]),
-    ] , className="county-distribution-container"),
+    ], className="county-distribution-container"),
 
     dcc.Dropdown(
         id='plot-type-dropdown',
@@ -184,11 +176,15 @@ app.layout = html.Div([
     ),
 
     html.Div([
+        html.P("The number of tickets issued in Texas has increased over the years. The graph below shows the number of tickets issued over the years."),
         dcc.Graph(id='tickets-plot-years'),
+        html.H3('This graph does not necessarily show whether there are peaks in arrests depending on the month. On average there are more than 1.5 million arrests per month.'),
         dcc.Graph(id='tickets-plot-months'),
         dcc.Graph(id='tickets-plot-days'),
         dcc.Graph(id='tickets-plots-hours'),
-    ])
+    ]),
+
+    html.H3('Different types of arrests exist but we wanted to take into account only speeding.'),
 ])
 
 # Define the callback to update the data based on the dropdown value
@@ -242,7 +238,7 @@ def update_data(percentage):
     racial_disparities_figure = plot_disparity_by_race(df)
     speed_violation_distribution_figure = speed_violation_distribution(df, gender_names)
     county_distribution_figure = county_distribution(df)
-    gender_comparison_figure = update_gender_comparison(df)
+    gender_comparison_figure = update_gender_comparison(df, gender_names)
     
     # Update for histogram plots with median
     tickets_years_figure = update_number_of_tickets_years(df)
@@ -251,8 +247,8 @@ def update_data(percentage):
     tickets_hours_figure = update_number_of_tickets_hours(df)
     
     return (total_data, search_conducted, search_vehicle, crime_map_figure, 
-            racial_disparities_figure, speed_violation_distribution_figure, 
-            county_distribution_figure, tickets_years_figure, gender_comparison_figure,
+            racial_disparities_figure, speed_violation_distribution_figure, gender_comparison_figure, 
+            county_distribution_figure, tickets_years_figure,
             tickets_months_figure, tickets_days_figure, tickets_hours_figure)
 
 # Run the app
