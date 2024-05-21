@@ -1,6 +1,10 @@
 import plotly.express as px
 import pandas as pd
 import plotly.graph_objects as go
+import ipywidgets as widgets
+from ipywidgets import interact, interactive, HBox, VBox
+
+
 
 def update_gender_comparison(df, gender_names):
     gender_counts = df['subject_sex'].value_counts()
@@ -225,3 +229,46 @@ def update_violation_distribution(df, violation_names, color_mapping):
     )
 
     return fig
+
+
+# # Function to update the violation distribution plot
+# def update_violation_distribution(month, year, gender):
+
+#     filtered_df = df.copy()
+    
+#     if month != 'All':
+#         filtered_df = filtered_df[filtered_df['month'] == month]
+#     if year != 'All':
+#         filtered_df = filtered_df[filtered_df['year'] == year]
+#     if gender != 'All':
+#         filtered_df = filtered_df[filtered_df['subject_sex'] == gender]
+
+#     violation_counts = filtered_df['violation_parsed'].value_counts().reset_index()
+#     violation_counts.columns = ['violation_parsed', 'count']
+#     violation_counts['violation_parsed'] = violation_counts['violation_parsed'].map(violation_names)
+
+#     fig = px.bar(
+#         violation_counts,
+#         x='violation_parsed',
+#         y='count',
+#         labels={'count': 'Count', 'violation_parsed': 'Violation'},
+#         title='Violation Distribution',
+#         color='violation_parsed',
+#         color_discrete_map=color_mapping,
+#     )
+
+#     fig.update_layout(
+#         xaxis_title=None,
+#         yaxis_title=None,
+#         showlegend=False,
+#         plot_bgcolor='White',
+#         xaxis=dict(showline=False, showgrid=False, showticklabels=True),
+#         yaxis=dict(showline=False, showgrid=False, showticklabels=False),
+#     )
+
+#     fig.update_traces(
+#         textposition='outside',
+#         marker=dict(line=dict(width=0))
+#     )
+
+#     return fig
